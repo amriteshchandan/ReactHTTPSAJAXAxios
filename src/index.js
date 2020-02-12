@@ -1,12 +1,48 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import * as serviceWorker from "./serviceWorker";
+import axios from "axios";
 
-ReactDOM.render(<App />, document.getElementById('root'));
+axios.defaults.baseURL = "http://jsonplaceholder.typicode.com";
+axios.defaults.headers.common["DEFAULT_CUSTOM_COMMON_HEADER"] = "AUTH_TOKEN";
+axios.defaults.headers.post["DEFAULT_CUSTOM_COMMON_HEADER_FOR_POST_REQ"] =
+  "JWT_TOKEN";
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
+axios.interceptors.request.use(
+  request => {
+    console.log("[REQUEST]", request);
+    console.log("[REQUEST.HEADERS]", request.headers.common);
+    const headers = {
+      ...request.headers.common,
+      "X-customHeader": "customHeader1"
+    };
+    console.log("++ ", headers);
+    request.headers.common = headers;
+    console.log("POST EDIT ", request);
+    return request;
+  },
+  error => {
+    console.log(error);
+    return Promise.reject(error);
+  }
+);
+
+axios.interceptors.response.use(
+  response => {
+    console.log(response);
+    return response;
+  },
+  error => {
+    console.log(error);
+    return Promise.reject(error);
+  }
+);
+
+// Removing Interceptors
+// var myInterceptor = axios.interceptors.request.use(function () {/*...*/});
+// axios.interceptors.request.eject(myInterceptor);
+
+ReactDOM.render(<App />, document.getElementById("root"));
 serviceWorker.unregister();
